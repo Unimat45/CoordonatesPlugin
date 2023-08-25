@@ -1,0 +1,14 @@
+name: coordonates-finder
+main: io.github.unimat45.CoordPlugin
+version: 2.0
+api-version: 1.20
+commands:
+    coord:
+        description: Sends the current player's coordinates to everyone
+        usage: /coord
+    save-coord:
+        description: Saves the current player's coordinates with a label
+        usage: /save-coord <...label>
+    show-coord:
+        description: Shows the current player's saved coordinates
+        usage: /show-coord
