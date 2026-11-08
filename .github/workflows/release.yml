@@ -1,0 +1,62 @@
+name: Release
+
+# Builds the plugin and publishes the jar as a GitHub release when a version tag is pushed:
+#   git tag v3.0 && git push origin v3.0
+# The tag must match the version in build.gradle.kts (v3.0 <-> version = "3.0").
+# Tags with a suffix (v3.1-beta1) are published as pre-releases.
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write # Create the release and upload the jar
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v6
+
+      - name: Set up JDK
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+
+      - name: Check tag matches project version
+        run: |
+          version=$(./gradlew -q properties | sed -n 's/^version: //p')
+          tag="${GITHUB_REF_NAME#v}"
+          if [ "$tag" != "$version" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME doesn't match the project version $version in build.gradle.kts"
+            exit 1
+          fi
+
+      # Full build: compiles, runs the tests on the oldest and newest API, and compatCheck
+      - name: Build
+        run: ./gradlew build --no-daemon
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          prerelease=()
+          if [[ "$GITHUB_REF_NAME" == *-* ]]; then
+            prerelease=(--prerelease)
+          fi
+          gh release create "$GITHUB_REF_NAME" build/libs/coord-plugin-*.jar \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes \
+            --verify-tag \
+            "${prerelease[@]}"
