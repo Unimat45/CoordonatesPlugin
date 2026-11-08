@@ -1,0 +1,13 @@
+version: 2
+updates:
+  # Keeps the actions used by the workflows up to date.
+  # Gradle dependencies are deliberately left out: spigot-api versions are pinned on purpose
+  # (oldest supported API + compatibility matrix in build.gradle.kts).
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns:
+          - "*"

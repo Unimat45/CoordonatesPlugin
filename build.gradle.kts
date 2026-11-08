@@ -107,3 +107,8 @@ tasks.processResources {
         expand(props)
     }
 }
+
+tasks.jar {
+    // Ship the license with the jar (GPL)
+    from("LICENSE")
+}
