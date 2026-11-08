@@ -6,9 +6,37 @@ commands:
     coord:
         description: Sends the current player's coordinates to everyone
         usage: /coord
+        permission: coord.use
     save-coord:
         description: Saves the current player's coordinates with a label
-        usage: /save-coord <...label>
+        usage: /save-coord <label...>
+        permission: coord.save
     show-coord:
         description: Shows the current player's saved coordinates
         usage: /show-coord
+        permission: coord.show
+    delete-coord:
+        description: Deletes one of the current player's saved coordinates
+        usage: /delete-coord <label...>
+        permission: coord.delete
+permissions:
+    coord.use:
+        description: Allows /coord
+        default: true
+    coord.save:
+        description: Allows /save-coord
+        default: true
+    coord.show:
+        description: Allows /show-coord
+        default: true
+    coord.delete:
+        description: Allows /delete-coord
+        default: true
+    coord.*:
+        description: Allows every command of the plugin
+        default: true
+        children:
+            coord.use: true
+            coord.save: true
+            coord.show: true
+            coord.delete: true
