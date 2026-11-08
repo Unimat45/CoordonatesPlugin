@@ -3,12 +3,12 @@ plugins {
 }
 
 group = "io.github.unimat45"
-version = "2.0"
+version = "3.0"
 description = "coord-plugin"
 
 // Oldest Minecraft version the plugin supports. The plugin is compiled against this API,
 // so any use of a method that doesn't exist on 1.8 fails the build.
-// (Nothing older is published, and pre-1.8 servers don't expose Gson as com.google.gson.)
+// (Nothing older is published.)
 val minMinecraftVersion = "1.8"
 
 // Latest patch of every Minecraft line up to the newest supported one.
@@ -30,7 +30,38 @@ repositories {
 
 dependencies {
     compileOnly(spigotApi(minMinecraftVersion))
-    testImplementation("junit:junit:4.11")
+
+    // Tests use the real Bukkit YAML classes from the oldest supported API
+    testImplementation(spigotApi(minMinecraftVersion))
+    testImplementation(platform("org.junit:junit-bom:5.14.4"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
+
+// Runs the same tests with the newest API on the classpath: servers bundle very different
+// YAML library versions, and the save file must work with all of them.
+// (Gradle's conflict resolution picks the newest spigot-api over the one from testImplementation.)
+val latestApiTestRuntime = configurations.create("latestApiTestRuntime") {
+    isCanBeConsumed = false
+    isCanBeResolved = true
+    extendsFrom(configurations.testImplementation.get(), configurations.testRuntimeOnly.get())
+}
+dependencies.add(latestApiTestRuntime.name, spigotApi(compatMinecraftVersions.last()))
+
+val testAgainstLatestApi = tasks.register<Test>("testAgainstLatestApi") {
+    group = "verification"
+    description = "Runs the tests against spigot-api ${compatMinecraftVersions.last()}."
+    testClassesDirs = sourceSets.test.get().output.classesDirs
+    classpath = sourceSets.test.get().output + sourceSets.main.get().output + latestApiTestRuntime
+    useJUnitPlatform()
+}
+
+tasks.check {
+    dependsOn(testAgainstLatestApi)
 }
 
 tasks.withType<JavaCompile>().configureEach {
