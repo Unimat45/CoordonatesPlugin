@@ -41,3 +41,13 @@ A jar file will be built under `build/libs/coord-plugin-3.0.jar`
 `build` also runs `compatCheck`, which compiles the plugin against every supported Spigot API version (see `compatMinecraftVersions` in `build.gradle.kts`). To support a new Minecraft version, add it to that list.
 
 The tests run twice: against the oldest supported API (`test`) and the newest one (`testAgainstLatestApi`), since servers bundle different versions of the YAML library.
+
+## License
+
+Copyright (C) 2023-2026 Unimat45
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the [LICENSE](LICENSE) file for details.
+
+Releases up to and including 3.0 were published under the MIT License.
